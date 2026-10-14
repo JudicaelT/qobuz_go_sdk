@@ -141,6 +141,25 @@ func (self *Client) StreamTrackInto(trackId int, format qobuzsdk.Format, mapTo a
 	return err
 }
 
+func (self *Client) AddTrackToFavorites(trackId int) error {
+	favorite := qobuzsdk.Favorite{TrackIds: []int{trackId}}
+	return self.AddToFavorites(favorite)
+}
+
+func (self *Client) AddAlbumToFavorites(albumId string) error {
+	favorite := qobuzsdk.Favorite{AlbumIds: []string{albumId}}
+	return self.AddToFavorites(favorite)
+}
+
+func (self *Client) AddArtistToFavorites(artistId int) error {
+	favorite := qobuzsdk.Favorite{ArtistIds: []int{artistId}}
+	return self.AddToFavorites(favorite)
+}
+
+func (self *Client) AddToFavorites(favorite qobuzsdk.Favorite) error {
+	return self.apiClient.PostForm("favorite/create", favorite)
+}
+
 func (self *Client) GetAlbum(albumId string) (qobuzsdk.Album, error) {
 	var album qobuzsdk.Album
 	err := self.GetAlbumInto(albumId, &album)

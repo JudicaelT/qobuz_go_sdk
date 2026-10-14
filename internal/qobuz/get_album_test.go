@@ -34,7 +34,7 @@ func TestGetAlbumTestSuite(t *testing.T) {
 func (test *GetAlbumTestSuite) TestGetAlbum() {
 	// GIVEN an API client that returns the album for the given id
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -53,7 +53,7 @@ func (test *GetAlbumTestSuite) TestGetAlbum_GetAlbumEndpointFails() {
 	// GIVEN an API client whose GET album/get endpoint fails
 	getErr := &qobuzsdk.ApiError{Code: 500, Message: "GET album/get failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, getErr),
+		test.MockGetApiClient(test.endpoint, getErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -73,7 +73,7 @@ func (test *GetAlbumTestSuite) TestGetAlbum_AlbumNotFound() {
 	// GIVEN an API client whose GET album/get endpoint returns a 404
 	errorMessage := "Album not found"
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, &qobuzsdk.ApiError{Code: 404, Message: errorMessage}),
+		test.MockGetApiClient(test.endpoint, &qobuzsdk.ApiError{Code: 404, Message: errorMessage}),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,

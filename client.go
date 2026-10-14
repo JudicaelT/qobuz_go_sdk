@@ -14,6 +14,11 @@ type Client interface {
 	StreamTrack(trackId int, format Format) (TrackFileUrl, error)
 	StreamTrackInto(trackId int, format Format, mapTo any) error
 
+	AddTrackToFavorites(trackId int) error
+	AddAlbumToFavorites(albumId string) error
+	AddArtistToFavorites(artistId int) error
+	AddToFavorites(favorite Favorite) error
+
 	GetAlbum(albumId string) (Album, error)
 	GetAlbumInto(albumId string, mapTo any) error
 

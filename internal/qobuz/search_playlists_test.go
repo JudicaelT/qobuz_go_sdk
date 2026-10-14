@@ -45,7 +45,7 @@ func TestSearchPlaylistsTestSuite(t *testing.T) {
 func (test *SearchPlaylistsTestSuite) TestSearchPlaylists() {
 	// GIVEN an API client that returns the playlists for the given query
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -64,7 +64,7 @@ func (test *SearchPlaylistsTestSuite) TestSearchPlaylists_SearchPlaylistsEndpoin
 	// GIVEN an API client whose GET playlist/search endpoint fails
 	searchErr := &qobuzsdk.ApiError{Code: 500, Message: "GET playlist/search failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, searchErr),
+		test.MockGetApiClient(test.endpoint, searchErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,

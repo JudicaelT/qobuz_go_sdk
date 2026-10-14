@@ -2,61 +2,45 @@ package rest
 
 import "fmt"
 
-type mockEndpoint struct {
-	expectedHeaders map[string]string
-	handle          func(parseTo any) error
-}
+type GetEndpointHandler func(parseTo any) error
+type PostEndpointHandler func() error
 
 type MockApiClient struct {
-	headers   map[string]string
-	endpoints map[string]mockEndpoint
+	headers       map[string]string
+	getEndpoints  map[string]GetEndpointHandler
+	postEndpoints map[string]PostEndpointHandler
 }
 
 func NewMockApiClient() *MockApiClient {
 	return &MockApiClient{
-		headers:   make(map[string]string),
-		endpoints: make(map[string]mockEndpoint),
+		headers:       make(map[string]string),
+		getEndpoints:  make(map[string]GetEndpointHandler),
+		postEndpoints: make(map[string]PostEndpointHandler),
 	}
 }
 
-func (self *MockApiClient) MockEndpoint(
-	endpoint string,
-	handle func(parseTo any) error,
-	expectedHeaders map[string]string,
-) {
-	if expectedHeaders == nil {
-		expectedHeaders = make(map[string]string)
-	}
-	self.endpoints[endpoint] = mockEndpoint{
-		expectedHeaders: expectedHeaders,
-		handle:          handle,
-	}
+func (self *MockApiClient) MockGetEndpoint(endpoint string, handle GetEndpointHandler) {
+	self.getEndpoints[endpoint] = handle
+}
+
+func (self *MockApiClient) MockPostEndpoint(endpoint string, handle PostEndpointHandler) {
+	self.postEndpoints[endpoint] = handle
 }
 
 func (self *MockApiClient) Get(endpoint string, parseTo any) error {
-	mockEndpoint, isSet := self.endpoints[endpoint]
+	handleRequest, isSet := self.getEndpoints[endpoint]
 	if !isSet {
-		return fmt.Errorf("Endpoint '%s' not found", endpoint)
+		return fmt.Errorf("Endpoint 'GET %s' not found", endpoint)
 	}
-	for key, expectedValue := range mockEndpoint.expectedHeaders {
-		actualValue, headerIsSet := self.headers[key]
-		if !headerIsSet {
-			return fmt.Errorf(
-				"Header '%s' is required to use enpoint '%s'",
-				key,
-				endpoint,
-			)
-		}
-		if expectedValue != actualValue {
-			return fmt.Errorf(
-				"Value '%s' of header '%s' should have been '%s'",
-				actualValue,
-				key,
-				expectedValue,
-			)
-		}
+	return handleRequest(parseTo)
+}
+
+func (self *MockApiClient) PostForm(endpoint string, payload any) error {
+	handleRequest, isSet := self.postEndpoints[endpoint]
+	if !isSet {
+		return fmt.Errorf("Endpoint 'POST %s' not found", endpoint)
 	}
-	return mockEndpoint.handle(parseTo)
+	return handleRequest()
 }
 
 func (self *MockApiClient) SetHeader(key, value string) {

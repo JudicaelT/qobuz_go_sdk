@@ -44,7 +44,7 @@ func TestLoginWithOAuthTestSuite(t *testing.T) {
 func (test *LoginWithOAuthTestSuite) TestLoginWithOAuth() {
 	// GIVEN an API client that exchanges an oAuth code for a user token
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -68,7 +68,7 @@ func (test *LoginWithOAuthTestSuite) TestLoginWithOAuth_GetOAuthCallbackFails() 
 	// GIVEN an API client that fails to exchanges an oAuth code for a user token
 	oAuthCallbackErr := &qobuzsdk.ApiError{Code: 500, Message: "GET oauth/callback failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, oAuthCallbackErr),
+		test.MockGetApiClient(test.endpoint, oAuthCallbackErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,

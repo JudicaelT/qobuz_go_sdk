@@ -32,11 +32,11 @@ func (test *ApiTestSuite[T]) GetCurrentTimestamp() int64 {
 	return test.CurrentTimestamp
 }
 
-func (test *ApiTestSuite[T]) MockApiClient(
+func (test *ApiTestSuite[T]) MockGetApiClient(
 	endpoint string,
 	errToReturn error,
 ) *rest.MockApiClient {
-	var handle func(parseTo any) error
+	var handle rest.GetEndpointHandler
 	if errToReturn == nil {
 		handle = func(parseTo any) error {
 			parsed, isOfExpectedType := parseTo.(*T)
@@ -53,11 +53,20 @@ func (test *ApiTestSuite[T]) MockApiClient(
 	} else {
 		handle = func(parseTo any) error { return errToReturn }
 	}
+
 	mockApiClient := rest.NewMockApiClient()
-	mockApiClient.MockEndpoint(
+	mockApiClient.MockGetEndpoint(endpoint, handle)
+	return mockApiClient
+}
+
+func (test *ApiTestSuite[T]) MockPostApiClient(
+	endpoint string,
+	errToReturn error,
+) *rest.MockApiClient {
+	mockApiClient := rest.NewMockApiClient()
+	mockApiClient.MockPostEndpoint(
 		endpoint,
-		handle,
-		nil,
+		func() error { return errToReturn },
 	)
 	return mockApiClient
 }

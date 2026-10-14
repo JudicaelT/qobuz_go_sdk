@@ -45,7 +45,7 @@ func TestSearchArtistsTestSuite(t *testing.T) {
 func (test *SearchArtistsTestSuite) TestSearchArtists() {
 	// GIVEN an API client that returns the artists for the given query
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -64,7 +64,7 @@ func (test *SearchArtistsTestSuite) TestSearchArtists_SearchArtistsEndpointFails
 	// GIVEN an API client whose GET artist/search endpoint fails
 	searchErr := &qobuzsdk.ApiError{Code: 500, Message: "GET artist/search failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, searchErr),
+		test.MockGetApiClient(test.endpoint, searchErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,

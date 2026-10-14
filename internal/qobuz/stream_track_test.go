@@ -54,7 +54,7 @@ func TestStreamTrackTestSuite(t *testing.T) {
 func (test *StreamTrackTestSuite) TestStreamTrack() {
 	// GIVEN an API client that returns the file url for the given track id
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -73,7 +73,7 @@ func (test *StreamTrackTestSuite) TestStreamTrack_GetFileUrlEndpointFails() {
 	// GIVEN an API client whose GET track/getFileUrl endpoint fails
 	streamingErr := &qobuzsdk.ApiError{Code: 500, Message: "GET track/getFileUrl failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, streamingErr),
+		test.MockGetApiClient(test.endpoint, streamingErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -93,7 +93,7 @@ func (test *StreamTrackTestSuite) TestStreamTrack_TrackNotFound() {
 	// GIVEN an API client whose GET track/getFileUrl endpoint returns a 404
 	errorMessage := "Track not found"
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, &qobuzsdk.ApiError{Code: 404, Message: errorMessage}),
+		test.MockGetApiClient(test.endpoint, &qobuzsdk.ApiError{Code: 404, Message: errorMessage}),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,

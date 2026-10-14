@@ -5,12 +5,15 @@ import (
 	"io"
 	"net/http"
 	urlPackage "net/url"
+	"strings"
 
 	"github.com/JudicaelT/qobuzsdk"
+	"github.com/gorilla/schema"
 )
 
 type ApiClient interface {
 	Get(endpoint string, parseTo any) error
+	PostForm(endpoint string, payload any) error
 	SetHeader(key, value string)
 	HasHeader(key string) bool
 }
@@ -29,51 +32,84 @@ func NewApiClient(baseUrl string) ApiClient {
 	}
 }
 
+var encoder *schema.Encoder = schema.NewEncoder()
+
 func (self *apiClientImpl) Get(endpoint string, parseTo any) error {
-	url, err := self.buildUrl(endpoint)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return err
-	}
-	for key, value := range self.headers {
-		req.Header.Add(key, value)
-	}
-
-	res, err := self.httpClient.Do(req)
+	res, err := self.call(http.MethodGet, endpoint, nil)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
-	return self.parseBody(res, parseTo)
-}
 
-func (self *apiClientImpl) buildUrl(endpoint string) (string, error) {
-	u, err := urlPackage.Parse(self.baseUrl + "/" + endpoint)
-	if err != nil {
-		return "", err
+	if err := self.assertResIsSuccessful(res); err != nil {
+		return err
 	}
-	u.RawQuery = u.Query().Encode()
-	return u.String(), nil
-}
 
-func (self *apiClientImpl) parseBody(res *http.Response, parseTo any) error {
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
+	if err := json.Unmarshal(body, parseTo); err != nil {
+		return err
+	}
+	return err
+}
+
+func (self *apiClientImpl) PostForm(endpoint string, payload any) error {
+	res, err := self.call(http.MethodPost, endpoint, payload)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return self.assertResIsSuccessful(res)
+}
+
+func (self *apiClientImpl) call(
+	httpMethod string,
+	endpoint string,
+	payload any,
+) (*http.Response, error) {
+	url, err := urlPackage.Parse(self.baseUrl + "/" + endpoint)
+	if err != nil {
+		return nil, err
+	}
+	url.RawQuery = url.Query().Encode()
+
+	var body io.Reader
+	var contentType string
+	if payload != nil {
+		form := urlPackage.Values{}
+		if err := encoder.Encode(payload, form); err != nil {
+			return nil, err
+		}
+		body = strings.NewReader(form.Encode())
+		contentType = "application/x-www-form-urlencoded"
+	}
+
+	req, err := http.NewRequest(httpMethod, url.String(), body)
+	if err != nil {
+		return nil, err
+	}
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+	for key, value := range self.headers {
+		req.Header.Add(key, value)
+	}
+	return self.httpClient.Do(req)
+}
+
+func (self *apiClientImpl) assertResIsSuccessful(res *http.Response) error {
 	if res.StatusCode < 200 || res.StatusCode > 299 {
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
 		apiErr := &qobuzsdk.ApiError{}
 		if err := json.Unmarshal(body, apiErr); err != nil {
 			return err
 		}
 		return apiErr
-	}
-	if err := json.Unmarshal(body, parseTo); err != nil {
-		return err
 	}
 	return nil
 }

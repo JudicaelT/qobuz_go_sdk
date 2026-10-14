@@ -48,7 +48,7 @@ func TestSearchCatalogTestSuite(t *testing.T) {
 func (test *SearchCatalogTestSuite) TestSearchCatalog() {
 	// GIVEN an API client that returns the catalog for the given query
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -67,7 +67,7 @@ func (test *SearchCatalogTestSuite) TestSearchCatalog_SearchCatalogEndpointFails
 	// GIVEN an API client whose GET catalog/search endpoint fails
 	searchErr := &qobuzsdk.ApiError{Code: 500, Message: "GET catalog/search failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, searchErr),
+		test.MockGetApiClient(test.endpoint, searchErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,

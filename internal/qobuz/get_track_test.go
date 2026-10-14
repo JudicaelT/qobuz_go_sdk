@@ -34,7 +34,7 @@ func TestGetTrackTestSuite(t *testing.T) {
 func (test *GetTrackTestSuite) TestGetTrack() {
 	// GIVEN an API client that returns the track for the given id
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, nil),
+		test.MockGetApiClient(test.endpoint, nil),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -53,7 +53,7 @@ func (test *GetTrackTestSuite) TestGetTrack_GetTrackEndpointFails() {
 	// GIVEN an API client whose GET track/get endpoint fails
 	getTrackErr := &qobuzsdk.ApiError{Code: 500, Message: "GET track/get failed"}
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, getTrackErr),
+		test.MockGetApiClient(test.endpoint, getTrackErr),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
@@ -73,7 +73,7 @@ func (test *GetTrackTestSuite) TestGetTrack_TrackNotFound() {
 	// GIVEN an API client whose GET track/get endpoint returns a 404
 	errorMessage := "Track not found"
 	client := qobuz.NewClient(
-		test.MockApiClient(test.endpoint, &qobuzsdk.ApiError{Code: 404, Message: errorMessage}),
+		test.MockGetApiClient(test.endpoint, &qobuzsdk.ApiError{Code: 404, Message: errorMessage}),
 		test.AppId,
 		test.AppSecret,
 		test.PrivateKey,
