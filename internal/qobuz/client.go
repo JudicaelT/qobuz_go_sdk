@@ -249,6 +249,32 @@ func (self *Client) SearchPlaylistsInto(
 	return self.search("playlist", query, limit, offset, mapTo)
 }
 
+func (self *Client) SubscribeToPlaylist(playlistId int) error {
+	type payload struct {
+		PlaylistId int `schema:"playlist_id"`
+	}
+	err := self.apiClient.PostForm("playlist/subscribe", payload{playlistId})
+	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
+		if apiErr.Code == 404 {
+			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}
+		}
+	}
+	return err
+}
+
+func (self *Client) UnsubscribeFromPlaylist(playlistId int) error {
+	type payload struct {
+		PlaylistId int `schema:"playlist_id"`
+	}
+	err := self.apiClient.PostForm("playlist/unsubscribe", payload{playlistId})
+	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
+		if apiErr.Code == 404 {
+			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}
+		}
+	}
+	return err
+}
+
 func (self *Client) GetArtist(artistId int) (qobuzsdk.ArtistPage, error) {
 	var artist qobuzsdk.ArtistPage
 	err := self.GetArtistInto(artistId, &artist)

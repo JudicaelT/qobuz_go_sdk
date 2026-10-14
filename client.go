@@ -23,9 +23,10 @@ type Client interface {
 
 	GetPlaylist(playlistId int) (Playlist, error)
 	GetPlaylistInto(playlistId int, mapTo any) error
-
 	SearchPlaylists(query string, limit, offset int16) (PlaylistsSearchResult, error)
 	SearchPlaylistsInto(query string, limit, offset int16, mapTo any) error
+	SubscribeToPlaylist(playlistId int) error
+	UnsubscribeFromPlaylist(playlistId int) error
 
 	GetArtist(artistId int) (ArtistPage, error)
 	GetArtistInto(artistId int, mapTo any) error
