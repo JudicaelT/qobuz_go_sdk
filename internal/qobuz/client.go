@@ -107,13 +107,13 @@ func (self *Client) SearchTracksInto(
 	return self.search("track", query, limit, offset, mapTo)
 }
 
-func (self *Client) StreamTrack(trackId int, format qobuzsdk.Format) (qobuzsdk.TrackFileUrl, error) {
+func (self *Client) StreamTrack(trackId int, format qobuzsdk.TrackFormat) (qobuzsdk.TrackFileUrl, error) {
 	var trackFileUrl qobuzsdk.TrackFileUrl
 	err := self.StreamTrackInto(trackId, format, &trackFileUrl)
 	return trackFileUrl, err
 }
 
-func (self *Client) StreamTrackInto(trackId int, format qobuzsdk.Format, mapTo any) error {
+func (self *Client) StreamTrackInto(trackId int, format qobuzsdk.TrackFormat, mapTo any) error {
 	var timestamp int64 = self.getCurrentTimestamp()
 
 	sum := md5.Sum(fmt.Appendf(nil,

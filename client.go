@@ -9,8 +9,8 @@ type Client interface {
 	GetTrackInto(trackId int, mapTo any) error
 	SearchTracks(query string, limit, offset int16) (TracksSearchResult, error)
 	SearchTracksInto(query string, limit, offset int16, mapTo any) error
-	StreamTrack(trackId int, format Format) (TrackFileUrl, error)
-	StreamTrackInto(trackId int, format Format, mapTo any) error
+	StreamTrack(trackId int, format TrackFormat) (TrackFileUrl, error)
+	StreamTrackInto(trackId int, format TrackFormat, mapTo any) error
 	AddTrackToFavorites(trackId int) error
 	RemoveTrackFromFavorites(trackId int) error
 

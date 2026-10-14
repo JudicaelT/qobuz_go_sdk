@@ -43,7 +43,7 @@ type Album struct {
 	Artists                        []AlbumArtist     `json:"artists"`
 	Label                          AlbumLabel        `json:"label"`
 	Genre                          Genre             `json:"genre"`
-	Awards                         []Award           `json:"awards"`
+	Awards                         []AlbumAward      `json:"awards"`
 	Image                          CoverImage        `json:"image"`
 	Tracks                         Pagination[Track] `json:"tracks"`
 }
@@ -68,4 +68,15 @@ type AlbumLabel struct {
 	Slug        string `json:"slug"`
 	Name        string `json:"name"`
 	AlbumsCount int    `json:"albums_count"`
+}
+
+type AlbumAward struct {
+	Name            string `json:"name"`
+	Slug            string `json:"slug"`
+	AwardSlug       string `json:"award_slug"`
+	AwardedAt       int    `json:"awarded_at"`
+	AwardId         string `json:"award_id"`
+	PublicationId   string `json:"publication_id"`
+	PublicationName string `json:"publication_name"`
+	PublicationSlug string `json:"publication_slug"`
 }

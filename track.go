@@ -41,21 +41,21 @@ type TrackPerformer struct {
 }
 
 type TrackFileUrl struct {
-	TrackId      int     `json:"track_id"`
-	Duration     int     `json:"duration"`
-	URL          string  `json:"url"`
-	Format       Format  `json:"format_id"`
-	MimeType     string  `json:"mime_type"`
-	SamplingRate float64 `json:"sampling_rate"`
-	BitDepth     int     `json:"bit_depth"`
-	Blob         string  `json:"blob"`
+	TrackId      int         `json:"track_id"`
+	Duration     int         `json:"duration"`
+	URL          string      `json:"url"`
+	Format       TrackFormat `json:"format_id"`
+	MimeType     string      `json:"mime_type"`
+	SamplingRate float64     `json:"sampling_rate"`
+	BitDepth     int         `json:"bit_depth"`
+	Blob         string      `json:"blob"`
 }
 
-type Format int8
+type TrackFormat int8
 
 const (
-	FormatMP3320          Format = 5
-	FormatFLACCD          Format = 6
-	FormatFLACHiRes96kHz  Format = 7
-	FormatFLACHiRes192kHz Format = 27
+	FormatMP3320          TrackFormat = 5
+	FormatFLACCD          TrackFormat = 6
+	FormatFLACHiRes96kHz  TrackFormat = 7
+	FormatFLACHiRes192kHz TrackFormat = 27
 )

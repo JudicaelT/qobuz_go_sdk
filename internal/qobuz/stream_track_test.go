@@ -15,7 +15,7 @@ import (
 type StreamTrackTestSuite struct {
 	*ApiTestSuite[qobuzsdk.TrackFileUrl]
 	trackId  int
-	format   qobuzsdk.Format
+	format   qobuzsdk.TrackFormat
 	endpoint string
 }
 
