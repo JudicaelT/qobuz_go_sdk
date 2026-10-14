@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/JudicaelT/qobuzsdk"
+	"github.com/JudicaelT/qobuzsdk/internal/qobuz"
 	"github.com/JudicaelT/qobuzsdk/internal/rest"
 
 	"github.com/stretchr/testify/suite"
@@ -26,6 +28,16 @@ func NewApiTestSuite[T any](expectedResult T) *ApiTestSuite[T] {
 		CurrentTimestamp: time.Now().Unix(),
 		ExpectedResult:   expectedResult,
 	}
+}
+
+func (test *ApiTestSuite[T]) NewClient(mockApiClient *rest.MockApiClient) qobuzsdk.Client {
+	return qobuz.NewClient(
+		mockApiClient,
+		test.AppId,
+		test.AppSecret,
+		test.PrivateKey,
+		test.GetCurrentTimestamp,
+	)
 }
 
 func (test *ApiTestSuite[T]) GetCurrentTimestamp() int64 {
