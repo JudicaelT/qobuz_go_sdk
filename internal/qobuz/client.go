@@ -160,6 +160,25 @@ func (self *Client) AddToFavorites(favorite qobuzsdk.Favorite) error {
 	return self.apiClient.PostForm("favorite/create", favorite)
 }
 
+func (self *Client) RemoveTrackFromFavorites(trackId int) error {
+	favorite := qobuzsdk.Favorite{TrackIds: []int{trackId}}
+	return self.RemoveFromFavorites(favorite)
+}
+
+func (self *Client) RemoveAlbumFromFavorites(albumId string) error {
+	favorite := qobuzsdk.Favorite{AlbumIds: []string{albumId}}
+	return self.RemoveFromFavorites(favorite)
+}
+
+func (self *Client) RemoveArtistFromFavorites(artistId int) error {
+	favorite := qobuzsdk.Favorite{ArtistIds: []int{artistId}}
+	return self.RemoveFromFavorites(favorite)
+}
+
+func (self *Client) RemoveFromFavorites(favorite qobuzsdk.Favorite) error {
+	return self.apiClient.PostForm("favorite/delete", favorite)
+}
+
 func (self *Client) GetAlbum(albumId string) (qobuzsdk.Album, error) {
 	var album qobuzsdk.Album
 	err := self.GetAlbumInto(albumId, &album)
