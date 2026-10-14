@@ -1,0 +1,31 @@
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+name: Go
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.26.x' ]
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Building
+        run: go build -v ./...
+      - name: Running tests
+        run: go test -v ./...
+      - name: Looking for files to lint
+        run: |
+          DIFFS=$(gofmt -d .)
+          if [ -n "$DIFFS" ]; then
+            echo "Some files are not formatted correctly. Use 'make lint' to format them"
+            echo "$DIFFS"
+            exit 1
+          fi
