@@ -9,17 +9,15 @@ import (
 )
 
 type SubscribeToPlaylistTestSuite struct {
-	*ApiTestSuite[qobuzsdk.Playlist]
+	*ApiTestSuite[any]
 	playlistId int
 	endpoint   string
 }
 
 func TestSubscribeToPlaylistTestSuite(t *testing.T) {
-	playlistId := 42
-	expectedPlaylist := qobuzsdk.Playlist{Id: playlistId, Name: "Some Playlist"}
 	suite.Run(t, &SubscribeToPlaylistTestSuite{
-		ApiTestSuite: NewApiTestSuite(expectedPlaylist),
-		playlistId:   playlistId,
+		ApiTestSuite: NewApiTestSuite[any](nil),
+		playlistId:   42,
 		endpoint:     "playlist/subscribe",
 	})
 }

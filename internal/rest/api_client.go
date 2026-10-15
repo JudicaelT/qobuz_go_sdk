@@ -13,7 +13,7 @@ import (
 
 type ApiClient interface {
 	Get(endpoint string, parseTo any) error
-	PostForm(endpoint string, payload any) error
+	PostForm(endpoint string, payload any, parseTo any) error
 	SetHeader(key, value string)
 	HasHeader(key string) bool
 }
@@ -45,23 +45,32 @@ func (self *apiClientImpl) Get(endpoint string, parseTo any) error {
 		return err
 	}
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return err
-	}
-	if err := json.Unmarshal(body, parseTo); err != nil {
+	if err := self.parseBody(res, parseTo); err != nil {
 		return err
 	}
 	return err
 }
 
-func (self *apiClientImpl) PostForm(endpoint string, payload any) error {
+func (self *apiClientImpl) PostForm(
+	endpoint string,
+	payload any,
+	parseTo any,
+) error {
 	res, err := self.call(http.MethodPost, endpoint, payload)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
-	return self.assertResIsSuccessful(res)
+
+	if err := self.assertResIsSuccessful(res); err != nil {
+		return err
+	}
+	if parseTo != nil {
+		if err := self.parseBody(res, parseTo); err != nil {
+			return err
+		}
+	}
+	return err
 }
 
 func (self *apiClientImpl) call(
@@ -76,22 +85,20 @@ func (self *apiClientImpl) call(
 	url.RawQuery = url.Query().Encode()
 
 	var body io.Reader
-	var contentType string
 	if payload != nil {
 		form := urlPackage.Values{}
 		if err := encoder.Encode(payload, form); err != nil {
 			return nil, err
 		}
 		body = strings.NewReader(form.Encode())
-		contentType = "application/x-www-form-urlencoded"
 	}
 
 	req, err := http.NewRequest(httpMethod, url.String(), body)
 	if err != nil {
 		return nil, err
 	}
-	if contentType != "" {
-		req.Header.Set("Content-Type", contentType)
+	if httpMethod == http.MethodPost {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 	for key, value := range self.headers {
 		req.Header.Add(key, value)
@@ -112,6 +119,14 @@ func (self *apiClientImpl) assertResIsSuccessful(res *http.Response) error {
 		return apiErr
 	}
 	return nil
+}
+
+func (self *apiClientImpl) parseBody(res *http.Response, parseTo any) error {
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(body, parseTo)
 }
 
 func (self *apiClientImpl) SetHeader(key, value string) {

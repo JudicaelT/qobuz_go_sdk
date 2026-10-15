@@ -20,6 +20,21 @@ type Playlist struct {
 	Genres          []Genre       `json:"genres"`
 }
 
+type CreatedPlaylist struct {
+	Id              int           `json:"id"`
+	Name            string        `json:"name"`
+	Description     string        `json:"description"`
+	TracksCount     int           `json:"tracks_count"`
+	UsersCount      int           `json:"users_count"`
+	Duration        int           `json:"duration"`
+	PublicAt        bool          `json:"public_at"`
+	CreatedAt       int           `json:"created_at"`
+	UpdatedAt       int           `json:"updated_at"`
+	IsPublic        bool          `json:"is_public"`
+	IsCollaborative bool          `json:"is_collaborative"`
+	Owner           PlaylistOwner `json:"owner"`
+}
+
 type PlaylistOwner struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`

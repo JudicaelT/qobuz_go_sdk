@@ -2,6 +2,7 @@ package qobuz_test
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/JudicaelT/qobuzsdk"
@@ -48,26 +49,11 @@ func (test *ApiTestSuite[T]) MockGetApiClient(
 	endpoint string,
 	errToReturn error,
 ) *rest.MockApiClient {
-	var handle rest.GetEndpointHandler
-	if errToReturn == nil {
-		handle = func(parseTo any) error {
-			parsed, isOfExpectedType := parseTo.(*T)
-			if !isOfExpectedType {
-				return fmt.Errorf(
-					"Parameter 'parseTo' should have been of type *%t for endpoint '%s'",
-					parseTo,
-					endpoint,
-				)
-			}
-			*parsed = test.ExpectedResult
-			return nil
-		}
-	} else {
-		handle = func(parseTo any) error { return errToReturn }
-	}
-
 	mockApiClient := rest.NewMockApiClient()
-	mockApiClient.MockGetEndpoint(endpoint, handle)
+	mockApiClient.MockGetEndpoint(
+		endpoint,
+		test.mockEndpointHandler(endpoint, errToReturn),
+	)
 	return mockApiClient
 }
 
@@ -78,7 +64,34 @@ func (test *ApiTestSuite[T]) MockPostApiClient(
 	mockApiClient := rest.NewMockApiClient()
 	mockApiClient.MockPostEndpoint(
 		endpoint,
-		func() error { return errToReturn },
+		test.mockEndpointHandler(endpoint, errToReturn),
 	)
 	return mockApiClient
+}
+
+func (test *ApiTestSuite[T]) mockEndpointHandler(
+	endpoint string,
+	errToReturn error,
+) rest.MockEndpointHandler {
+	if errToReturn != nil {
+		return func(parseTo any) error { return errToReturn }
+	}
+	return func(parseTo any) error {
+		thereIsAnExpectedResult := reflect.ValueOf(test.ExpectedResult).IsValid()
+		if thereIsAnExpectedResult {
+			parsed, isOfExpectedType := parseTo.(*T)
+			if parsed == nil {
+				panic(test.ExpectedResult)
+			}
+			if !isOfExpectedType {
+				return fmt.Errorf(
+					"Parameter 'parseTo' should have been of type *%t for endpoint '%s'",
+					parseTo,
+					endpoint,
+				)
+			}
+			*parsed = test.ExpectedResult
+		}
+		return nil
+	}
 }

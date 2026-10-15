@@ -157,7 +157,7 @@ func (self *Client) AddArtistToFavorites(artistId int) error {
 }
 
 func (self *Client) AddToFavorites(favorite qobuzsdk.Favorite) error {
-	return self.apiClient.PostForm("favorite/create", favorite)
+	return self.apiClient.PostForm("favorite/create", favorite, nil)
 }
 
 func (self *Client) RemoveTrackFromFavorites(trackId int) error {
@@ -176,7 +176,7 @@ func (self *Client) RemoveArtistFromFavorites(artistId int) error {
 }
 
 func (self *Client) RemoveFromFavorites(favorite qobuzsdk.Favorite) error {
-	return self.apiClient.PostForm("favorite/delete", favorite)
+	return self.apiClient.PostForm("favorite/delete", favorite, nil)
 }
 
 func (self *Client) GetAlbum(albumId string) (qobuzsdk.Album, error) {
@@ -249,11 +249,83 @@ func (self *Client) SearchPlaylistsInto(
 	return self.search("playlist", query, limit, offset, mapTo)
 }
 
+func (self *Client) CreatePlaylist(
+	isPublic bool,
+	isCollaborative bool,
+	name string,
+	description string,
+) (qobuzsdk.CreatedPlaylist, error) {
+	type payload struct {
+		IsPublic        bool   `schema:"is_public"`
+		IsCollaborative bool   `schema:"is_collaborative"`
+		Name            string `schema:"name"`
+		Description     string `schema:"description"`
+	}
+	var createdPlaylist qobuzsdk.CreatedPlaylist
+	err := self.apiClient.PostForm(
+		"playlist/create",
+		payload{
+			IsPublic:        isPublic,
+			IsCollaborative: isCollaborative,
+			Name:            name,
+			Description:     description,
+		},
+		&createdPlaylist,
+	)
+	return createdPlaylist, err
+}
+
+func (self *Client) UpdatePlaylist(
+	playlistId int,
+	isPublic bool,
+	isCollaborative bool,
+	name string,
+	description string,
+) error {
+	type payload struct {
+		PlaylistId      int    `schema:"playlist_id"`
+		IsPublic        bool   `schema:"is_public"`
+		IsCollaborative bool   `schema:"is_collaborative"`
+		Name            string `schema:"name"`
+		Description     string `schema:"description"`
+	}
+	err := self.apiClient.PostForm(
+		"playlist/update",
+		payload{
+			PlaylistId:      playlistId,
+			IsPublic:        isPublic,
+			IsCollaborative: isCollaborative,
+			Name:            name,
+			Description:     description,
+		},
+		nil,
+	)
+	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
+		if apiErr.Code == 404 {
+			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}
+		}
+	}
+	return err
+}
+
+func (self *Client) DeletePlaylist(playlistId int) error {
+	type payload struct {
+		PlaylistId int `schema:"playlist_id"`
+	}
+	err := self.apiClient.PostForm("playlist/delete", payload{PlaylistId: playlistId}, nil)
+	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
+		if apiErr.Code == 404 {
+			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}
+		}
+	}
+	return err
+}
+
 func (self *Client) SubscribeToPlaylist(playlistId int) error {
 	type payload struct {
 		PlaylistId int `schema:"playlist_id"`
 	}
-	err := self.apiClient.PostForm("playlist/subscribe", payload{playlistId})
+	err := self.apiClient.PostForm("playlist/subscribe", payload{playlistId}, nil)
 	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
 		if apiErr.Code == 404 {
 			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}
@@ -266,7 +338,7 @@ func (self *Client) UnsubscribeFromPlaylist(playlistId int) error {
 	type payload struct {
 		PlaylistId int `schema:"playlist_id"`
 	}
-	err := self.apiClient.PostForm("playlist/unsubscribe", payload{playlistId})
+	err := self.apiClient.PostForm("playlist/unsubscribe", payload{playlistId}, nil)
 	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
 		if apiErr.Code == 404 {
 			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}

@@ -28,32 +28,32 @@ func TestRemoveFromFavoritesTestSuite(t *testing.T) {
 	})
 }
 
-func (test *RemoveFromFavoritesTestSuite) TestAddTrackToFavorites() {
+func (test *RemoveFromFavoritesTestSuite) TestRemoveTrackFromFavorites() {
 	err := test.workingClient.RemoveTrackFromFavorites(42)
 	test.NoError(err)
 }
 
-func (test *RemoveFromFavoritesTestSuite) TestAddTrackToFavorites_DeleteFavoriteFails() {
+func (test *RemoveFromFavoritesTestSuite) TestRemoveTrackFromFavorites_DeleteFavoriteFails() {
 	err := test.failingClient.RemoveTrackFromFavorites(42)
 	test.ErrorIs(err, test.unfavoritingErr)
 }
 
-func (test *RemoveFromFavoritesTestSuite) TestAddAlbumToFavorites() {
+func (test *RemoveFromFavoritesTestSuite) TestRemoveAlbumFromFavorites() {
 	err := test.workingClient.RemoveAlbumFromFavorites("42")
 	test.NoError(err)
 }
 
-func (test *RemoveFromFavoritesTestSuite) TestAddAlbumToFavorites_DeleteFavoriteFails() {
+func (test *RemoveFromFavoritesTestSuite) TestRemoveAlbumFromFavorites_DeleteFavoriteFails() {
 	err := test.failingClient.RemoveAlbumFromFavorites("42")
 	test.ErrorIs(err, test.unfavoritingErr)
 }
 
-func (test *RemoveFromFavoritesTestSuite) TestAddArtistToFavorites() {
+func (test *RemoveFromFavoritesTestSuite) TestRemoveArtistFromFavorites() {
 	err := test.workingClient.RemoveArtistFromFavorites(42)
 	test.NoError(err)
 }
 
-func (test *RemoveFromFavoritesTestSuite) TestAddArtistToFavorites_DeleteFavoriteFails() {
+func (test *RemoveFromFavoritesTestSuite) TestRemoveArtistFromFavorites_DeleteFavoriteFails() {
 	err := test.failingClient.RemoveArtistFromFavorites(42)
 	test.ErrorIs(err, test.unfavoritingErr)
 }

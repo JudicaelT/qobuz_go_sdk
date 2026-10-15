@@ -25,6 +25,9 @@ type Client interface {
 	GetPlaylistInto(playlistId int, mapTo any) error
 	SearchPlaylists(query string, limit, offset int16) (PlaylistsSearchResult, error)
 	SearchPlaylistsInto(query string, limit, offset int16, mapTo any) error
+	CreatePlaylist(isPublic, isCollaborative bool, name, description string) (CreatedPlaylist, error)
+	UpdatePlaylist(playlistId int, isPublic, isCollaborative bool, name, description string) error
+	DeletePlaylist(playlistId int) error
 	SubscribeToPlaylist(playlistId int) error
 	UnsubscribeFromPlaylist(playlistId int) error
 
