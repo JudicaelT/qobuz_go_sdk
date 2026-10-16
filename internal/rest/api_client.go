@@ -6,6 +6,7 @@ import (
 	"net/http"
 	urlPackage "net/url"
 	"strings"
+	"sync"
 
 	"github.com/JudicaelT/qobuzsdk"
 	"github.com/gorilla/schema"
@@ -19,9 +20,10 @@ type ApiClient interface {
 }
 
 type apiClientImpl struct {
-	baseUrl    string
-	httpClient *http.Client
-	headers    map[string]string
+	baseUrl     string
+	httpClient  *http.Client
+	headersLock sync.Mutex
+	headers     map[string]string
 }
 
 func NewApiClient(baseUrl string) ApiClient {
@@ -100,9 +102,11 @@ func (self *apiClientImpl) call(
 	if httpMethod == http.MethodPost {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
+	self.headersLock.Lock()
 	for key, value := range self.headers {
 		req.Header.Add(key, value)
 	}
+	self.headersLock.Unlock()
 	return self.httpClient.Do(req)
 }
 
@@ -130,10 +134,14 @@ func (self *apiClientImpl) parseBody(res *http.Response, parseTo any) error {
 }
 
 func (self *apiClientImpl) SetHeader(key, value string) {
+	self.headersLock.Lock()
+	defer self.headersLock.Unlock()
 	self.headers[key] = value
 }
 
 func (self *apiClientImpl) HasHeader(key string) bool {
+	self.headersLock.Lock()
+	defer self.headersLock.Unlock()
 	_, isSet := self.headers[key]
 	return isSet
 }
