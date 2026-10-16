@@ -28,6 +28,7 @@ type Client interface {
 	CreatePlaylist(isPublic, isCollaborative bool, name, description string) (CreatedPlaylist, error)
 	UpdatePlaylist(playlistId int, isPublic, isCollaborative bool, name, description string) error
 	DeletePlaylist(playlistId int) error
+	AddTracksToPlaylist(playlistId int, trackId int, moreTrackIds ...int) error
 	SubscribeToPlaylist(playlistId int) error
 	UnsubscribeFromPlaylist(playlistId int) error
 

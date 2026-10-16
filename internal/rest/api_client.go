@@ -2,14 +2,17 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	urlPackage "net/url"
+	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/JudicaelT/qobuzsdk"
-	"github.com/gorilla/schema"
 )
 
 type ApiClient interface {
@@ -33,8 +36,6 @@ func NewApiClient(baseUrl string) ApiClient {
 		headers:    make(map[string]string),
 	}
 }
-
-var encoder *schema.Encoder = schema.NewEncoder()
 
 func (self *apiClientImpl) Get(endpoint string, parseTo any) error {
 	res, err := self.call(http.MethodGet, endpoint, nil)
@@ -88,11 +89,11 @@ func (self *apiClientImpl) call(
 
 	var body io.Reader
 	if payload != nil {
-		form := urlPackage.Values{}
-		if err := encoder.Encode(payload, form); err != nil {
+		formValues, err := self.encodePayload(payload)
+		if err != nil {
 			return nil, err
 		}
-		body = strings.NewReader(form.Encode())
+		body = strings.NewReader(formValues.Encode())
 	}
 
 	req, err := http.NewRequest(httpMethod, url.String(), body)
@@ -108,6 +109,57 @@ func (self *apiClientImpl) call(
 	}
 	self.headersLock.Unlock()
 	return self.httpClient.Do(req)
+}
+
+func (self *apiClientImpl) encodePayload(payload any) (url.Values, error) {
+	values := url.Values{}
+	reflectValue := reflect.ValueOf(payload)
+	reflectType := reflectValue.Type()
+	for i := 0; i < reflectType.NumField(); i++ {
+		field := reflectType.Field(i)
+		if !field.IsExported() {
+			return nil, fmt.Errorf("Payload contains unexported field %s", field.Name)
+		}
+
+		paramName, _, _ := strings.Cut(field.Tag.Get("schema"), ",")
+		if paramName == "" {
+			return nil, fmt.Errorf("Payload field %s is missing a name", field.Name)
+		}
+
+		paramValue, err := self.encodePayloadValue(reflectValue.Field(i))
+		if err != nil {
+			return nil, fmt.Errorf("Could not encode payload field %s: %w", field.Name, err)
+		}
+		values.Set(paramName, paramValue)
+	}
+	return values, nil
+}
+
+func (self *apiClientImpl) encodePayloadValue(value reflect.Value) (string, error) {
+	switch value.Kind() {
+	case reflect.String:
+		return value.String(), nil
+
+	case reflect.Bool:
+		return strconv.FormatBool(value.Bool()), nil
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(value.Int(), 10), nil
+
+	case reflect.Slice:
+		parts := make([]string, value.Len())
+		for i := 0; i < value.Len(); i++ {
+			part, err := self.encodePayloadValue(value.Index(i))
+			if err != nil {
+				return "", err
+			}
+			parts[i] = part
+		}
+		return strings.Join(parts, ","), nil
+
+	default:
+		return "", fmt.Errorf("Unsupported type %s", value.Type())
+	}
 }
 
 func (self *apiClientImpl) assertResIsSuccessful(res *http.Response) error {

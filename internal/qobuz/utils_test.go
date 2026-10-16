@@ -80,9 +80,6 @@ func (test *ApiTestSuite[T]) mockEndpointHandler(
 		thereIsAnExpectedResult := reflect.ValueOf(test.ExpectedResult).IsValid()
 		if thereIsAnExpectedResult {
 			parsed, isOfExpectedType := parseTo.(*T)
-			if parsed == nil {
-				panic(test.ExpectedResult)
-			}
 			if !isOfExpectedType {
 				return fmt.Errorf(
 					"Parameter 'parseTo' should have been of type *%t for endpoint '%s'",
