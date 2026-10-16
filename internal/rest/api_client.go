@@ -121,7 +121,7 @@ func (self *apiClientImpl) encodePayload(payload any) (url.Values, error) {
 			return nil, fmt.Errorf("Payload contains unexported field %s", field.Name)
 		}
 
-		paramName, _, _ := strings.Cut(field.Tag.Get("schema"), ",")
+		paramName, _, _ := strings.Cut(field.Tag.Get("form"), ",")
 		if paramName == "" {
 			return nil, fmt.Errorf("Payload field %s is missing a name", field.Name)
 		}

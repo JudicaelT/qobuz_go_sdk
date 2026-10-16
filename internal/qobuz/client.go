@@ -256,10 +256,10 @@ func (self *Client) CreatePlaylist(
 	description string,
 ) (qobuzsdk.CreatedPlaylist, error) {
 	type payload struct {
-		IsPublic        bool   `schema:"is_public"`
-		IsCollaborative bool   `schema:"is_collaborative"`
-		Name            string `schema:"name"`
-		Description     string `schema:"description"`
+		IsPublic        bool   `form:"is_public"`
+		IsCollaborative bool   `form:"is_collaborative"`
+		Name            string `form:"name"`
+		Description     string `form:"description"`
 	}
 	var createdPlaylist qobuzsdk.CreatedPlaylist
 	err := self.apiClient.PostForm(
@@ -283,11 +283,11 @@ func (self *Client) UpdatePlaylist(
 	description string,
 ) error {
 	type payload struct {
-		PlaylistId      int    `schema:"playlist_id"`
-		IsPublic        bool   `schema:"is_public"`
-		IsCollaborative bool   `schema:"is_collaborative"`
-		Name            string `schema:"name"`
-		Description     string `schema:"description"`
+		PlaylistId      int    `form:"playlist_id"`
+		IsPublic        bool   `form:"is_public"`
+		IsCollaborative bool   `form:"is_collaborative"`
+		Name            string `form:"name"`
+		Description     string `form:"description"`
 	}
 	err := self.apiClient.PostForm(
 		"playlist/update",
@@ -310,7 +310,7 @@ func (self *Client) UpdatePlaylist(
 
 func (self *Client) DeletePlaylist(playlistId int) error {
 	type payload struct {
-		PlaylistId int `schema:"playlist_id"`
+		PlaylistId int `form:"playlist_id"`
 	}
 	err := self.apiClient.PostForm("playlist/delete", payload{PlaylistId: playlistId}, nil)
 	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
@@ -327,8 +327,8 @@ func (self *Client) AddTracksToPlaylist(
 	moreTrackIds ...int,
 ) error {
 	type payload struct {
-		PlaylistId int   `schema:"playlist_id"`
-		TrackIds   []int `schema:"track_ids"`
+		PlaylistId int   `form:"playlist_id"`
+		TrackIds   []int `form:"track_ids"`
 	}
 	err := self.apiClient.PostForm(
 		"playlist/addTracks",
@@ -348,7 +348,7 @@ func (self *Client) AddTracksToPlaylist(
 
 func (self *Client) SubscribeToPlaylist(playlistId int) error {
 	type payload struct {
-		PlaylistId int `schema:"playlist_id"`
+		PlaylistId int `form:"playlist_id"`
 	}
 	err := self.apiClient.PostForm("playlist/subscribe", payload{playlistId}, nil)
 	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
@@ -361,7 +361,7 @@ func (self *Client) SubscribeToPlaylist(playlistId int) error {
 
 func (self *Client) UnsubscribeFromPlaylist(playlistId int) error {
 	type payload struct {
-		PlaylistId int `schema:"playlist_id"`
+		PlaylistId int `form:"playlist_id"`
 	}
 	err := self.apiClient.PostForm("playlist/unsubscribe", payload{playlistId}, nil)
 	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
