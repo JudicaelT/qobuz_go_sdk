@@ -23,6 +23,8 @@ type Client interface {
 
 	GetPlaylist(playlistId int) (Playlist, error)
 	GetPlaylistInto(playlistId int, mapTo any) error
+	GetUserPlaylists(limit, offset int16) (UserPlaylists, error)
+	GetUserPlaylistsInto(limit, offset int16, mapTo any) error
 	SearchPlaylists(query string, limit, offset int16) (PlaylistsSearchResult, error)
 	SearchPlaylistsInto(query string, limit, offset int16, mapTo any) error
 	CreatePlaylist(isPublic, isCollaborative bool, name, description string) (CreatedPlaylist, error)

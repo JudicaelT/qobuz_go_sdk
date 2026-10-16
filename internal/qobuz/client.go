@@ -230,6 +230,24 @@ func (self *Client) GetPlaylistInto(playlistId int, mapTo any) error {
 	return err
 }
 
+func (self *Client) GetUserPlaylists(limit, offset int16) (qobuzsdk.UserPlaylists, error) {
+	var userPlaylists qobuzsdk.UserPlaylists
+	err := self.GetUserPlaylistsInto(limit, offset, &userPlaylists)
+	return userPlaylists, err
+}
+
+func (self *Client) GetUserPlaylistsInto(
+	limit int16,
+	offset int16,
+	mapTo any,
+) error {
+	return self.apiClient.Get(fmt.Sprintf(
+		"playlist/getUserPlaylists?limit=%d&offset=%d",
+		limit,
+		offset,
+	), mapTo)
+}
+
 func (self *Client) SearchPlaylists(
 	query string,
 	limit int16,
