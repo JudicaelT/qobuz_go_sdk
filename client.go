@@ -29,6 +29,7 @@ type Client interface {
 	UpdatePlaylist(playlistId int, isPublic, isCollaborative bool, name, description string) error
 	DeletePlaylist(playlistId int) error
 	AddTracksToPlaylist(playlistId int, trackId int, moreTrackIds ...int) error
+	RemoveTracksFromPlaylist(playlistId int, playlistTrackId int, morePlaylistTrackIds ...int) error
 	SubscribeToPlaylist(playlistId int) error
 	UnsubscribeFromPlaylist(playlistId int) error
 

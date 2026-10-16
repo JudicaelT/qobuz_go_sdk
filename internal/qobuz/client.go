@@ -346,6 +346,31 @@ func (self *Client) AddTracksToPlaylist(
 	return err
 }
 
+func (self *Client) RemoveTracksFromPlaylist(
+	playlistId int,
+	playlistTrackId int,
+	morePlaylistTrackIds ...int,
+) error {
+	type payload struct {
+		PlaylistId int   `form:"playlist_id"`
+		TrackIds   []int `form:"playlist_track_ids"`
+	}
+	err := self.apiClient.PostForm(
+		"playlist/deleteTracks",
+		payload{
+			PlaylistId: playlistId,
+			TrackIds:   append([]int{playlistTrackId}, morePlaylistTrackIds...),
+		},
+		nil,
+	)
+	if apiErr, isApiErr := err.(*qobuzsdk.ApiError); isApiErr {
+		if apiErr.Code == 404 {
+			err = &qobuzsdk.PlaylistNotFoundError{PlaylistId: playlistId, Err: err}
+		}
+	}
+	return err
+}
+
 func (self *Client) SubscribeToPlaylist(playlistId int) error {
 	type payload struct {
 		PlaylistId int `form:"playlist_id"`

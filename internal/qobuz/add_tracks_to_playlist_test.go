@@ -54,7 +54,7 @@ func (test *AddTracksToPlaylistTestSuite) TestAddTracksToPlaylist_PlaylistNotFou
 		&qobuzsdk.ApiError{Code: 404, Message: errorMessage},
 	))
 
-	// WHEN updating a playlist
+	// WHEN adding tracks to a playlist
 	err := client.AddTracksToPlaylist(test.playlistId, 42, 29)
 
 	// THEN a PlaylistNotFoundError is returned
